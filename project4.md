@@ -1,6 +1,5 @@
-##Writeup Template
-###You can use this file as a template for your writeup if you want to submit it as a markdown file, but feel free to use some other method and submit a pdf if you prefer.
-
+## Project 4 Writeup
+### Naoto Yoshida 2017/03/03, update 2017/03/03
 ---
 
 **Advanced Lane Finding Project**
@@ -61,18 +60,21 @@ I then used the output `objpoints` and `imgpoints` to compute the camera calibra
 Using the obtained parameters of camera calibration, I corrected the distortion using the `cv2.undistort()` function (13-th cell). 
 ![alt text][image2]
 ####2. Describe how (and identify where in your code) you used color transforms, gradients or other methods to create a thresholded binary image.  Provide an example of a binary image result.
-The code is provided in the 28-th cell (the function `get_threshold_binary_image()`). I converted the RGB image to the HSV color space, and then I used "Value" image from HSV to extract the line information. The example of value image is shown as below:
+The code is provided in the function `get_threshold_binary_image()`. I converted the RGB image to the HSV color space, and then I used "Value" image from HSV to extract the line information. The example of value image is shown as below:
 
 ![alt text][image3_0]
 ![alt text][image3]
 
 In order to extract lines, I used the binarized-value image with threshold (`hsv_select()`), sobel filter with respact to the x cordinate (`gradx = abs_sobel_thresh()`) and the directionan filter (`dir_threshold()`). And finally extracted the image pixels in the region of interest (`region_of_interest()`). I made many possible other filtering method (like `yellow_select()`, canny filter, ROI, etc.), but their combination was not strainght forward. Therefore, I used just a few of them. Here's an example of my output for this step. 
 
+#### After the FIRST Review:
+I added the red-threshold filter (the `red_select` function). But the effect was not significant very much. Instead, I took the moving average of the images in the line finding process and it actually worked well.
+
 ![alt text][image3_2]
 
 ####3. Describe how (and identify where in your code) you performed a perspective transform and provide an example of a transformed image.
 
-The perspective transform is presented in the 25-th cell of my ipython notebook. The `transform_image()` function takes as inputs an image (`img`), as well as source (`src`) and destination (`dst`) points.  I chose the hardcode the source and destination points in the following manner:
+The perspective transform is presented in the `transform_image()`  function of my ipython notebook. The `transform_image()` function takes as inputs an image (`img`), as well as source (`src`) and destination (`dst`) points.  I chose the hardcode the source and destination points in the following manner:
 
 ```
 d0 = 430
@@ -105,7 +107,7 @@ I verified that my perspective transform was working as expected by showing the 
 
 ####4. Describe how (and identify where in your code) you identified lane-line pixels and fit their positions with a polynomial?
 
-I almost entirely followed the method that was presented in the project lecture. The `line_finder()` function is the main process of the line identification process (111-th cell in my ipython notebook). Undistorted images are binalized by the method as described in the 2nd section, and then the perspective transform convert the image to the top-view perspective image. The blind-search is described in the 111-th cell (`line_finder()` function). The function that utilize the previous result of the line finder is described in the `find_next_lines()` function in 114-th cell of mt ipython notebook. 
+I almost entirely followed the method that was presented in the project lecture. The `line_finder()` function is the main process of the line identification process. Undistorted images are binalized by the method as described in the 2nd section, and then the perspective transform convert the image to the top-view perspective image. The blind-search is described in the `line_finder()` function. The function that utilize the previous result of the line finder is described in the `find_next_lines()` function of mt ipython notebook. 
 
 I took the sliding window approach as presented in the lecture (initialliy I tried to use the convolution approach, but the result was worse and then I turned to the sliding window approach. This process took time for me and then my submission of my project work was delayed as a result. This experience was great because I could learn that it is really hard to decide when to switch the method fundamentally). 
 
@@ -115,13 +117,19 @@ And I fit my lane lines with a 2nd order polynomial kinda like this (yellow line
 
 ####5. Describe how (and identify where in your code) you calculated the radius of curvature of the lane and the position of the vehicle with respect to center.
 
-I did this process in the 125-th cell of my ipython notebook (the `get_curvature()` function). I fllowed the method presented in the lecture to obtain the curvature of the left and right lines. I used the simple mean of the left and right line curvatures to show in the result image. 
+I did this process in the `get_curvature()` function of my ipython notebook. I fllowed the method presented in the lecture to obtain the curvature of the left and right lines. I used the simple mean of the left and right line curvatures to show in the result image. 
 
 The position of the vehicle was extracted by using the right and left bottom (nearest) lane points detected by using the method described in the previous section. I got the center point (lane-center) of these two points and compared with the center of the (undistorted) image. I simply subtracted the horizontal element of the image-center from the lane-center. If this difference is positive, the vehicle souhld be in the left-side of the lane. This process is described in the `get_curvature()` function too.
 
+#### After the FIRST Review: 
+I found a bug in the calculation of the image-center (the canter sould be `image_size[0]/2`, but `image_size[0]` in the original). 
+
 ####6. Provide an example image of your result plotted back down onto the road such that the lane area is identified clearly.
 
-The entire process is packed at the 158-th cell of my ipython notebook. The `LineFinder` class handles the line finding method and the previous result of the line fitting. This is my result:
+The entire process is packed in the `LineFinder` class of my ipython notebook. The `LineFinder` class handles the line finding method and the previous result of the line fitting. This is my result:
+
+#### After the FIRST Review:
+As I mentioned above, I took the moving average of the image sequence before calculating the line-finding process. 
 
 ![alt text][image6]
 
